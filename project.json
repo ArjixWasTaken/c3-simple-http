@@ -10,7 +10,7 @@
   "targets": {
     "http": {
       "type": "executable"
-    },
+    }
   },
   "cpu": "generic",
   "opt": "O0"
