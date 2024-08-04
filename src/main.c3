@@ -15,7 +15,11 @@ fn int process(void* arg) {
     HttpRequest req;
     req.read(socket)!!;
 
-    io::printfn("Received request: %s %s", req.method, req.uri);
+    HttpResponse res;
+    res.status = HttpStatus.OK;
+    res.body = string::new_format("You made a %s request to %s\n", req.method, req.uri);
+
+    res.write(socket)!!;
 
     return 0;
 }
