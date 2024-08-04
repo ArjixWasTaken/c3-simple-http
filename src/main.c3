@@ -15,6 +15,8 @@ fn int process(void* arg) {
     HttpRequest req;
     req.read(socket)!!;
 
+    io::printfn("Received request: %s %s", req.method, req.uri);
+
     return 0;
 }
 

@@ -17,8 +17,30 @@ struct HttpRequest {
 fault HttpRequestError {
     NO_DATA,
     REQUEST_TOO_LARGE,
+    MALFORMED_REQUEST,
+    UNSUPPORTED_VERSION,
     UNIMPLEMENTED
 }
+
+fault HttpVerbError {
+    INVALID_VERB
+}
+
+fn void! HttpRequest.set_method(HttpRequest* self, String verb) {
+    switch (verb) {
+        case "HEAD": self.method=HttpVerb.HEAD;
+        case "GET": self.method=HttpVerb.GET;
+        case "PATCH": self.method=HttpVerb.PATCH;
+        case "POST": self.method=HttpVerb.POST;
+        case "PUT": self.method=HttpVerb.PUT;
+        case "DELETE": self.method=HttpVerb.DELETE;
+        case "OPTIONS": self.method=HttpVerb.OPTIONS;
+        case "TRACE": self.method=HttpVerb.TRACE;
+        case "CONNECT": self.method=HttpVerb.CONNECT;
+        default: return HttpVerbError.INVALID_VERB?;
+    }
+}
+
 
 fn void! HttpRequest.read(HttpRequest* self, TcpSocket* socket) {
     List(<char>) bytes;
@@ -56,8 +78,17 @@ fn void! HttpRequest.read(HttpRequest* self, TcpSocket* socket) {
     List(<String>) header_lines;
     header_lines.new_init_with_array(((ZString)header.entries).str_view().split("\r\n"));
 
-    String status_line = header_lines.pop_first()!;
-    io::printfn("status_line: %s", status_line);
+    String[] status_line = header_lines.pop_first()!.split(" ");
+    if (status_line.len != 3) return HttpRequestError.MALFORMED_REQUEST?;
 
-    return HttpRequestError.UNIMPLEMENTED?;
+    String version = status_line[2];
+    if (version != "HTTP/1.1") return HttpRequestError.UNSUPPORTED_VERSION?;
+
+    self.set_method(status_line[0])!;
+    self.uri = status_line[1];
+
+    self.headers.new_init();
+    self.headers.from_lines(header_lines)!;
+
+    self.body = body;
 }
