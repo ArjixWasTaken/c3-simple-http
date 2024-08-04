@@ -12,7 +12,7 @@ fn int process(void* arg) {
     TcpSocket* socket = arg;
     defer socket.close()!!;
 
-    Request req;
+    HttpRequest req;
     req.read(socket)!!;
 
     return 0;
