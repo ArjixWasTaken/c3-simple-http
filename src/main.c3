@@ -34,6 +34,8 @@ fn int main(String[] args)
     if (catch err = server) {
         io::printfn("failed to bind <%s:%d> with failure: %s", host, port, err);
         return 1;
+    } else {
+        io::printfn("listening on <%s:%d>", host, port);
     }
 
     while (try TcpSocket socket = tcp::accept(&server)) {
