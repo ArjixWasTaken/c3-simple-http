@@ -12,16 +12,15 @@ fn void! HttpHeaders.from_lines(HttpHeaders* self, List(<String>) lines) {
         usz colon = line.index_of_char(':')!;
 
         String headerName = line[0..colon].trim();
-        String headerValue = line[colon+1..line.len-1].trim();
+        String headerValue = line[colon+1..].trim();
 
-        map::Entry(<String, List(<String>)>)*! entry = self.get_entry(headerName);
-        if (try entry) {
-            entry.value.push(headerValue);
+        if (try entry = self.get_entry(headerName)) {
+          entry.value.push(headerValue);
         } else {
-            List(<String>) values;
-            values.new_init(2);
-            values.push(headerValue);
-            self.set(headerName, values);
+          List(<String>) values;
+          values.new_init(2);
+          values.push(headerValue);
+          self.set(headerName, values);
         }
     }
 }
